@@ -1,12 +1,18 @@
 [[source]]
-url = 'https://pypi.python.org/simple'
+name = "pypi"
+url = "https://pypi.org/simple"
 verify_ssl = true
-name = 'pypi'
 
-[requires]
-python_version = '3.7'
+[dev-packages]
+pylint = "*"
 
 [packages]
-fastapi = '>=0.20'
-uvicorn = '>=0.7.1'
-gunicorn = '>=19.9.0'
+gunicorn = "*"
+uvicorn = "*"
+fastapi = "*"
+mongoengine = "*"
+email-validator = "*"
+environs = "*"
+
+[requires]
+python_version = "3.6"
