@@ -11,7 +11,7 @@ app = FastAPI()
 env = Env()
 env.read_env()
 database = env.str("DATABASE_URL")
-connect(database)
+connect(host=database)
 
 
 def create_thing(thing: ThingModel):
