@@ -1,3 +1,4 @@
+from typing import List
 from datetime import datetime
 from uuid import uuid4
 from mongoengine import connect
@@ -14,23 +15,21 @@ database = env.str("DATABASE_URL")
 connect(host=database)
 
 
-def create_thing(thing: ThingModel):
-    thing.uid = format(int(datetime.now().timestamp()), 'x') + uuid4().hex
-    thing_doc = ThingDocument(uid=thing.uid, data=thing.data)
+def create_thing(thing: ThingModel) -> ThingModel:
+    if not thing.tag:
+        thing.tag = format(int(datetime.now().timestamp()), 'x') + uuid4().hex
+    thing_doc = ThingDocument(tag=thing.tag, data=thing.data)
     thing_doc.save()
     return thing
 
 
 @app.get("/{key}")
-async def index(key: str):
-    try:
-        thing = ThingDocument.objects.get(uid=key)
-    except ThingDocument.DoesNotExist:
-        return JSONResponse(status_code=HTTP_404_NOT_FOUND)
-    return thing.data
+async def index(key: str) -> List[ThingDocument]:
+    things = ThingDocument.objects.filter(tag=key)
+    return [thing.data for thing in things]
 
 
 @app.post("/", status_code=HTTP_201_CREATED)
-async def create(thing: ThingModel):
+async def create(thing: ThingModel) -> ThingModel:
     thing = create_thing(thing)
     return thing

@@ -3,10 +3,10 @@ from mongoengine import StringField, DictField, Document
 
 
 class ThingModel(BaseModel):
-    uid: str = None
+    tag: str = None
     data: dict
 
 
 class ThingDocument(Document):
-    uid = StringField()
+    tag = StringField()
     data = DictField()
