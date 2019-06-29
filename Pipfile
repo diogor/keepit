@@ -13,6 +13,3 @@ fastapi = "*"
 mongoengine = "*"
 email-validator = "*"
 environs = "*"
-
-[requires]
-python_version = "3.6"
