@@ -16,9 +16,7 @@ database = env.str("DATABASE_URL")
 connect(host=database)
 
 
-origins = [
-    "*",
-]
+origins = env.list("ORIGINS")
 
 app.add_middleware(
     CORSMiddleware,
