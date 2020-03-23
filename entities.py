@@ -16,11 +16,15 @@ class BaseDBModel(peewee.Model):
         database = db
 
 
-class Contato(BaseModel):
+class ContatoResponse(BaseModel):
     id: int
     retorno: str
-    texto: dict
     created_at: datetime
+
+
+class ContatoRequest(BaseModel):
+    retorno: str
+    texto: str
 
 
 class ContatoModel(BaseDBModel):

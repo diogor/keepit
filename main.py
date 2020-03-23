@@ -1,15 +1,15 @@
-from mongoengine import connect
+from typing import List
 from environs import Env
 from fastapi import FastAPI
-from starlette.status import HTTP_201_CREATED
+from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND
+from starlette.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
-from entities import Contato, ContatoModel
+from entities import ContatoRequest, ContatoResponse, ContatoModel
 
 app = FastAPI()
 env = Env()
 env.read_env()
 database = env.str("DATABASE_URL")
-connect(host=database)
 
 
 origins = env.list("ORIGINS")
@@ -23,19 +23,31 @@ app.add_middleware(
 )
 
 
-def create_contato(contato: Contato) -> Contato:
+def create_contato(contato: ContatoRequest) -> ContatoResponse:
     contato_doc = ContatoModel(retorno=contato.retorno, texto=contato.texto)
     contato_doc.save()
     return contato
 
 
+@app.get("/")
+async def lista() -> List[ContatoResponse]:
+    contatos = ContatoModel.select().order_by(ContatoModel.created_at)
+    return [ContatoResponse(**c.__data__) for c in contatos]
+
+
 @app.get("/{id}")
-async def index(id: int) -> ContatoModel:
-    contato = ContatoModel.get(ContatoModel.id == id)
-    return contato
+async def index(id: int) -> ContatoResponse:
+    try:
+        contato = ContatoModel.get(ContatoModel.id == id)
+    except ContatoModel.DoesNotExist:
+        return JSONResponse(
+            status_code=HTTP_404_NOT_FOUND,
+            content={'message': 'Not Found.'}
+        )
+    return ContatoResponse(**contato.__data__)
 
 
 @app.post("/", status_code=HTTP_201_CREATED)
-async def create(contato: Contato) -> Contato:
+async def create(contato: ContatoRequest) -> ContatoResponse:
     contato = create_contato(contato)
     return contato
