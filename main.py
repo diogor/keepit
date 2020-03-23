@@ -1,13 +1,9 @@
-from typing import List
-from datetime import datetime
-from uuid import uuid4
 from mongoengine import connect
 from environs import Env
 from fastapi import FastAPI
-from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND
-from starlette.responses import JSONResponse
+from starlette.status import HTTP_201_CREATED
 from starlette.middleware.cors import CORSMiddleware
-from entities import ThingModel, ThingDocument
+from entities import Contato, ContatoModel
 
 app = FastAPI()
 env = Env()
@@ -27,21 +23,19 @@ app.add_middleware(
 )
 
 
-def create_thing(thing: ThingModel) -> ThingModel:
-    if not thing.tag:
-        thing.tag = format(int(datetime.now().timestamp()), 'x') + uuid4().hex
-    thing_doc = ThingDocument(tag=thing.tag, data=thing.data)
-    thing_doc.save()
-    return thing
+def create_contato(contato: Contato) -> Contato:
+    contato_doc = ContatoModel(retorno=contato.retorno, texto=contato.texto)
+    contato_doc.save()
+    return contato
 
 
-@app.get("/{key}")
-async def index(key: str) -> List[ThingDocument]:
-    things = ThingDocument.objects.filter(tag=key)
-    return [thing.data for thing in things]
+@app.get("/{id}")
+async def index(id: int) -> ContatoModel:
+    contato = ContatoModel.get(ContatoModel.id == id)
+    return contato
 
 
 @app.post("/", status_code=HTTP_201_CREATED)
-async def create(thing: ThingModel) -> ThingModel:
-    thing = create_thing(thing)
-    return thing
+async def create(contato: Contato) -> Contato:
+    contato = create_contato(contato)
+    return contato

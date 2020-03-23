@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 pylint = "*"
+flake8 = "*"
 
 [packages]
 gunicorn = "*"
@@ -13,3 +14,4 @@ fastapi = "*"
 mongoengine = "*"
 email-validator = "*"
 environs = "*"
+peewee = "*"
