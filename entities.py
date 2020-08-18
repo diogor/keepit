@@ -36,6 +36,12 @@ class User(BaseModel):
     username: str
 
 
+class UserCreateRequest(BaseModel):
+    name: str
+    username: str
+    password: str
+
+
 class Token(BaseModel):
     token: str
 

@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND
 from starlette.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
-from entities import ContatoRequest, ContatoResponse, ContatoModel, User
+from entities import (ContatoRequest, ContatoResponse,
+                      ContatoModel, User, UserCreateRequest)
 from services import create_contato, create_user
 
 app = FastAPI()
@@ -49,6 +50,6 @@ async def create(contato: ContatoRequest) -> ContatoResponse:
 
 
 @app.post("/user", status_code=HTTP_201_CREATED)
-async def user_create(user: User) -> User:
+async def user_create(user: UserCreateRequest) -> User:
     user = create_user(user)
     return user
