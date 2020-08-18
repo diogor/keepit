@@ -1,6 +1,6 @@
 import secrets
-from .entities import (UserModel, Token, ContatoRequest,
-                       ContatoResponse, ContatoModel)
+from entities import (UserModel, Token, ContatoRequest,
+                      ContatoResponse, ContatoModel)
 
 def create_user(**kwargs) -> UserModel:
     user: UserModel = UserModel.create(**kwargs)

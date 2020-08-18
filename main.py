@@ -4,8 +4,8 @@ from fastapi import FastAPI
 from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND
 from starlette.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
-from .entities import ContatoRequest, ContatoResponse, ContatoModel, User
-from .services import create_contato, create_user
+from entities import ContatoRequest, ContatoResponse, ContatoModel, User
+from services import create_contato, create_user
 
 app = FastAPI()
 env = Env()
