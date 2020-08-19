@@ -20,16 +20,17 @@ database = env.str("DATABASE_URL")
 
 origins = env.list("ORIGINS")
 
+
+app.add_middleware(
+    AuthenticationMiddleware, backend=BasicAuthBackend()
+)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
-
-app.add_middleware(
-    AuthenticationMiddleware, backend=BasicAuthBackend()
 )
 
 
