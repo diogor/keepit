@@ -2,14 +2,15 @@ import uvicorn
 from typing import List
 from environs import Env
 from fastapi import FastAPI, Request
+from fastapi.exceptions import HTTPException
 from peewee import IntegrityError
-from starlette.status import (HTTP_201_CREATED, HTTP_404_NOT_FOUND,
-                              HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
-from starlette.responses import JSONResponse
+from starlette.status import (HTTP_201_CREATED)
 from starlette.middleware.cors import CORSMiddleware
-from entities import (ContatoRequest, ContatoResponse,
-                      ContatoModel, User, UserCreateRequest)
-from services import create_contato, create_user
+from starlette.middleware.authentication import AuthenticationMiddleware
+from entities import (ContatoRequest, ContatoResponse, ContatoModel,
+                      User, UserCreateRequest, UserLoginRequest)
+from services import create_contato, create_user, get_token
+from middleware import BasicAuthBackend
 
 app = FastAPI()
 env = Env()
@@ -27,10 +28,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(
+    AuthenticationMiddleware, backend=BasicAuthBackend()
+)
+
 
 @app.get("/")
-async def lista() -> List[ContatoResponse]:
-    contatos = ContatoModel.select().order_by(ContatoModel.created_at)
+async def lista(request: Request) -> List[ContatoResponse]:
+    contatos = ContatoModel.select().where(
+            ContatoModel.user == request.user.username
+        ).order_by(ContatoModel.created_at)
     return [ContatoResponse(**c.__data__) for c in contatos]
 
 
@@ -39,10 +46,7 @@ async def index(id: int) -> ContatoResponse:
     try:
         contato = ContatoModel.get(ContatoModel.id == id)
     except ContatoModel.DoesNotExist:
-        return JSONResponse(
-            status_code=HTTP_404_NOT_FOUND,
-            content={'message': 'Not Found.'}
-        )
+        raise HTTPException(status_code=404)
     return ContatoResponse(**contato.__data__)
 
 
@@ -57,32 +61,14 @@ async def user_create(user: UserCreateRequest) -> User:
     try:
         user = create_user(**user.dict())
     except IntegrityError:
-        return JSONResponse(
-            status_code=HTTP_400_BAD_REQUEST,
-            content={'message': 'Username exists.'}
-        )
+        raise HTTPException(status_code=400)
     return User(**user.__data__)
 
 
-@app.middleware("http")
-async def check_token(request: Request, call_next):
-    method = request.scope.get('method')
-    path = request.scope.get('path')
-    response = await call_next(request)
-    if method == 'POST' and path == '/':
-        return response
-    auth = request.headers.get('authorization')
-    if auth:
-        try:
-            token = auth.split('Token')[1]
-            return response
-        except IndexError:
-            pass
-    return JSONResponse(
-                status_code=HTTP_401_UNAUTHORIZED,
-                content={'message': 'Unauthorized.'}
-            )
-    
+@app.post("/token")
+async def login(user: UserLoginRequest):
+    return get_token(user.username, user.password)
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
