@@ -51,5 +51,5 @@ async def create(contato: ContatoRequest) -> ContatoResponse:
 
 @app.post("/user", status_code=HTTP_201_CREATED)
 async def user_create(user: UserCreateRequest) -> User:
-    user = create_user(user)
+    user = create_user(**user.dict())
     return user
