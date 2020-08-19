@@ -3,8 +3,9 @@ from typing import List
 from environs import Env
 from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException
+from fastapi.responses import JSONResponse
 from peewee import IntegrityError
-from starlette.status import (HTTP_201_CREATED)
+from starlette.status import HTTP_201_CREATED, HTTP_202_ACCEPTED
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from entities import (ContatoRequest, ContatoResponse, ContatoModel,
@@ -49,6 +50,16 @@ async def index(id: int) -> ContatoResponse:
     except ContatoModel.DoesNotExist:
         raise HTTPException(status_code=404)
     return ContatoResponse(**contato.__data__)
+
+
+@app.delete("/{id}")
+async def delete_contato(id: int) -> JSONResponse:
+    try:
+        contato = ContatoModel.get(ContatoModel.id == id)
+        contato.delete_instance()
+    except ContatoModel.DoesNotExist:
+        raise HTTPException(status_code=404)
+    return JSONResponse(status_code=HTTP_202_ACCEPTED)
 
 
 @app.post("/", status_code=HTTP_201_CREATED)
