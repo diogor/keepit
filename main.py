@@ -73,8 +73,11 @@ async def check_token(request: Request, call_next):
         return response
     auth = request.headers.get('authorization')
     if auth:
-        token = auth.split('Token')[1]
-        return response
+        try:
+            token = auth.split('Token')[1]
+            return response
+        except IndexError:
+            pass
     return JSONResponse(
                 status_code=HTTP_401_UNAUTHORIZED,
                 content={'message': 'Unauthorized.'}
