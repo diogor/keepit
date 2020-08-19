@@ -1,7 +1,8 @@
 from typing import List
 from environs import Env
 from fastapi import FastAPI
-from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND
+from peewee import IntegrityError
+from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 from starlette.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from entities import (ContatoRequest, ContatoResponse,
@@ -51,5 +52,11 @@ async def create(contato: ContatoRequest) -> ContatoResponse:
 
 @app.post("/user", status_code=HTTP_201_CREATED)
 async def user_create(user: UserCreateRequest) -> User:
-    user = create_user(**user.dict())
-    return user
+    try:
+        user = create_user(**user.dict())
+    except IntegrityError:
+        return JSONResponse(
+            status_code=HTTP_400_BAD_REQUEST,
+            content={'message': 'Username exists.'}
+        )
+    return User(**user.__data__)
