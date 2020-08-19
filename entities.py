@@ -28,6 +28,7 @@ class ContatoResponse(BaseModel):
 class ContatoRequest(BaseModel):
     retorno: str
     texto: str
+    user: str
 
 
 class User(BaseModel):
@@ -49,6 +50,7 @@ class Token(BaseModel):
 class ContatoModel(BaseDBModel):
     retorno = peewee.CharField()
     texto = peewee.TextField()
+    user = peewee.TextField()
     created_at = peewee.DateTimeField(default=datetime.now)
 
 

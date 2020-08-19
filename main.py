@@ -1,8 +1,10 @@
+import uvicorn
 from typing import List
 from environs import Env
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from peewee import IntegrityError
-from starlette.status import HTTP_201_CREATED, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
+from starlette.status import (HTTP_201_CREATED, HTTP_404_NOT_FOUND,
+                              HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from starlette.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from entities import (ContatoRequest, ContatoResponse,
@@ -60,3 +62,24 @@ async def user_create(user: UserCreateRequest) -> User:
             content={'message': 'Username exists.'}
         )
     return User(**user.__data__)
+
+
+@app.middleware("http")
+async def check_token(request: Request, call_next):
+    method = request.scope.get('method')
+    path = request.scope.get('path')
+    response = await call_next(request)
+    if method == 'POST' and path == '/':
+        return response
+    auth = request.headers.get('authorization')
+    if auth:
+        token = auth.split('Token')[1]
+        return response
+    return JSONResponse(
+                status_code=HTTP_401_UNAUTHORIZED,
+                content={'message': 'Unauthorized.'}
+            )
+    
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
