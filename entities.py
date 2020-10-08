@@ -22,6 +22,13 @@ class BaseDBModel(peewee.Model):
 class ContatoResponse(BaseModel):
     id: int
     retorno: str
+    texto: str
+    created_at: datetime
+
+
+class ContatoListResponse(BaseModel):
+    id: int
+    retorno: str
     created_at: datetime
 
 
