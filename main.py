@@ -5,7 +5,8 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from peewee import IntegrityError
-from starlette.status import HTTP_201_CREATED, HTTP_202_ACCEPTED
+from starlette.status import (HTTP_201_CREATED, HTTP_202_ACCEPTED,
+                              HTTP_401_UNAUTHORIZED)
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from entities import (ContatoRequest, ContatoListResponse, ContatoResponse,
@@ -53,9 +54,11 @@ async def index(id: int) -> ContatoResponse:
 
 
 @app.delete("/{id}")
-async def delete_contato(id: int) -> JSONResponse:
+async def delete_contato(id: int, request: Request) -> JSONResponse:
     try:
         contato = ContatoModel.get(ContatoModel.id == id)
+        if contato.user != request.user.username:
+            raise HTTPException(status_code=HTTP_401_UNAUTHORIZED)
         contato.delete_instance()
     except ContatoModel.DoesNotExist:
         raise HTTPException(status_code=404)
