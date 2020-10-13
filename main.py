@@ -9,8 +9,8 @@ from starlette.status import (HTTP_201_CREATED, HTTP_202_ACCEPTED,
                               HTTP_401_UNAUTHORIZED)
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
-from entities import (ContatoRequest, ContatoResponse, ContatoModel,
-                      User, UserCreateRequest, UserLoginRequest)
+from entities import (ContatoRequest, ContatoListResponse, ContatoResponse,
+                      ContatoModel, User, UserCreateRequest, UserLoginRequest)
 from services import create_contato, create_user, get_token
 from middleware import BasicAuthBackend
 
@@ -37,11 +37,11 @@ app.add_middleware(
 
 
 @app.get("/")
-async def lista(request: Request) -> List[ContatoResponse]:
+async def lista(request: Request) -> List[ContatoListResponse]:
     contatos = ContatoModel.select().where(
             ContatoModel.user == request.user.username
         ).order_by(ContatoModel.created_at)
-    return [ContatoResponse(**c.__data__) for c in contatos]
+    return [ContatoListResponse(**c.__data__) for c in contatos]
 
 
 @app.get("/{id}")
