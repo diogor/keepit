@@ -1,4 +1,10 @@
 import { createStore } from 'vuex'
+import VuexPersist from 'vuex-persist'
+
+const vuexPersist = new VuexPersist({
+  key: 'keepit',
+  storage: window.localStorage
+})
 
 export default createStore({
   state: {
@@ -12,5 +18,6 @@ export default createStore({
   actions: {
   },
   modules: {
-  }
+  },
+  plugins: [vuexPersist.plugin]
 })
