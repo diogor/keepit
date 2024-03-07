@@ -48,6 +48,6 @@ jobs:
     - name: send code
       run: |
         ssh ${{ secrets.REMOTE_HOST }} -l ${{ secrets.REMOTE_USER }} "cd /home/diogo/webapps/keepit && git pull origin master"
-        ssh ${{ secrets.REMOTE_HOST }} -l ${{ secrets.REMOTE_USER }} "supervisorctl restart keepit"
+        ssh ${{ secrets.REMOTE_HOST }} -l ${{ secrets.REMOTE_USER }} "systemctl restart keepit"
     - name: cleanup
       run: rm -rf ~/.ssh
