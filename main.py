@@ -10,7 +10,8 @@ from starlette.status import (HTTP_201_CREATED, HTTP_202_ACCEPTED,
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from entities import (ContatoRequest, ContatoListResponse, ContatoResponse,
-                      ContatoModel, User, UserCreateRequest, UserLoginRequest)
+                      ContatoModel, User, UserCreateRequest, UserLoginRequest,
+                      create_tables)
 from services import create_contato, create_user, get_token
 from middleware import BasicAuthBackend
 
@@ -34,6 +35,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+create_tables()
 
 
 @app.get("/")
