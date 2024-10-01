@@ -1,0 +1,6 @@
+services:
+  keepit:
+    build: .
+    env_file: .env
+    ports:
+      - 3001:${PORT}
